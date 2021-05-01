@@ -1,16 +1,35 @@
 import { uuid } from 'uuidv4';
-import React, { useState } from 'react';
-import { RecipeList } from '../RecipeList';
+import React, { useState, useEffect } from 'react';
+import { RecipeList } from '../RecipeList'
+import { RecipeEdit } from '../RecipeEdit';
 import './app.css';
 
 export const RecipeContext = React.createContext();
+const LOCAL_STORAGE_KEY = 'cookingWithReact.recipes';
 
 const App = () => {
-  const [recipes, setRecipes] = useState(sampleRecipes);
+  const [recipes, setRecipes] = useState([]);
+  const [selectedRecipeId, setSelectedRecipeId] = useState();
+  const selectedRecipe = recipes.find(recipe => recipe.id === selectedRecipeId);
+
+  useEffect(() => {
+    const recipeJSON = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (recipeJSON != null) {
+      setRecipes(JSON.parse(recipeJSON));
+    } else {
+      setRecipes(sampleRecipes);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(recipes));
+  }, [recipes]);
 
   const recipeContextValue = {
     handleRecipeAdd,
-    handleRecipeDelete
+    handleRecipeDelete,
+    handleRecipeSelect,
+    handleRecipeChange
   };
 
   function handleRecipeAdd() {
@@ -36,9 +55,21 @@ const App = () => {
     setRecipes(recipes.filter(recipe => recipe.id !== id));
   }
 
+  function handleRecipeChange(id, recipe) {
+    const newRecipes = [...recipes];
+    const index = newRecipes.findIndex(r => r.id === id);
+    newRecipes[index] = recipe;
+    setRecipes(newRecipes);
+  }
+
+  function handleRecipeSelect(id) {
+    setSelectedRecipeId(id);
+  }
+
   return (
     <RecipeContext.Provider value={recipeContextValue}>
       <RecipeList recipes={recipes} />
+      { selectedRecipe && <RecipeEdit recipe={selectedRecipe} />}
     </RecipeContext.Provider>
   );
 }
@@ -49,7 +80,7 @@ const sampleRecipes = [
     name: 'Plain Chicken',
     servings: 3,
     cookTime: '1:45',
-    instructions: '1. Put salt on chicken \n 2. Put chicken in oven \n 3. Eat chicken',
+    instructions: '1. Put salt on chicken \n2. Put chicken in oven \n3. Eat chicken',
     ingredients: [
       {
         id: 1,
