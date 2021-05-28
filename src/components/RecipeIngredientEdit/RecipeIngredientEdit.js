@@ -11,13 +11,13 @@ function RecipeIngredientEdit(props) {
     return (
         <>
             <input
-                className="recipe-edit__input"
-                type="text" value={name}
+                className="recipe-edit__input recipe-edit__input--name"
+                type="text" value={name} aria-label="name-input"
                 onChange={(e) => handleChange({ name: e.target.value })}
             />
             <input
-                className="recipe-edit__input"
-                type="text" value={amount}
+                className="recipe-edit__input recipe-edit__input--name--amount"
+                type="text" value={amount} aria-label="amount-input"
                 onChange={(e) => handleChange({ amount: e.target.value })}
             />
             <button
